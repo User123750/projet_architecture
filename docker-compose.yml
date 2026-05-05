@@ -1,0 +1,23 @@
+version: '3.8'
+
+services:
+  minio:
+    image: minio/minio
+    container_name: datalake_minio
+    ports:
+      - "9000:9000"   # Port pour l'API (pour que le script Python y envoie les données)
+      - "9001:9001"   # Port pour l'interface web (pour visualiser tes fichiers)
+    environment:
+      MINIO_ROOT_USER: admin_projet
+      MINIO_ROOT_PASSWORD: password_secure123
+    command: server /data --console-address ":9001"
+    volumes:
+      - minio_data:/data
+    deploy:
+      resources:
+        limits:
+          cpus: '1.0'
+          memory: 1G  # On limite la RAM pour garder le PC réactif
+
+volumes:
+  minio_data:
