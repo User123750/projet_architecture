@@ -10,6 +10,7 @@ x-airflow-common: &airflow-common
     - ./dags:/opt/airflow/dags
     - .:/opt/airflow/scripts # Kan-creyiw blassa bach Airflow ychouf les scripts dyalk
   depends_on:
+   - _PIP_ADDITIONAL_REQUIREMENTS=boto3 pandas beautifulsoup4 requests langdetect sqlalchemy psycopg2-binary
     - postgres
 
 services:
@@ -85,7 +86,39 @@ services:
     command: scheduler
     depends_on:
       - airflow-init
+# ------------------------------------
+  # 6. LE DATA WAREHOUSE (POSTGRESQL)
+  # ------------------------------------
+  data_warehouse:
+    image: postgres:15
+    container_name: data_warehouse_db
+    environment:
+      - POSTGRES_USER=admin_dw
+      - POSTGRES_PASSWORD=password_dw
+      - POSTGRES_DB=presse_dw
+    ports:
+      - "5433:5432" 
+    volumes:
+      - dw_data:/var/lib/postgresql/data
+
+
+# ------------------------------------
+  # 7. OUTIL DE VISUALISATION (METABASE)
+  # ------------------------------------
+  metabase:
+    image: metabase/metabase:latest
+    container_name: metabase_dashboard
+    ports:
+      - "3000:3000"
+    volumes:
+      - metabase_data:/metabase.db
+    deploy:
+      resources:
+        limits:
+          memory: 2G
 
 volumes:
   minio_data:
   postgres_data:
+  dw_data:
+  metabase_data: 

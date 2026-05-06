@@ -1,28 +1,26 @@
 {
     "total_articles": 20,
     "repartition_categories": {
-        "Monde": 6,
-        "Politique": 5,
-        "Orbites": 3,
-        "Economie": 2,
-        "Sport": 1,
-        "Regions": 1,
-        "Culture": 1,
-        "Société": 1
+        "Monde": 5,
+        "Politique": 4,
+        "Société": 3,
+        "Sport": 3,
+        "Culture": 2,
+        "Economie": 1,
+        "High-tech": 1,
+        "Opinions": 1
     },
     "top_auteurs": {
-        "Hespress FR": 9,
-        "Zoubida Senoussi": 3,
-        "Mohammed CHAHBI": 2,
+        "Hespress FR": 10,
+        "Zoubida Senoussi": 5,
         "Hicham Oukerzaz": 2,
-        "AFP": 1,
-        "Marwane El Bouzdaini": 1,
         "Dr Saïd LAQABI": 1,
-        "Zineb Jazouli": 1
+        "AFP": 1,
+        "Ahmed LAAYOUNI": 1
     },
     "repartition_langues": {
         "fr": 19,
         "inconnu": 1
     },
-    "date_generation": "2026-05-06 13:31:09"
+    "date_generation": "2026-05-06 16:06:36"
 }

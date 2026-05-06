@@ -9,7 +9,7 @@ if __name__ == "__main__":
     
     try:
         print(" Lecture du fichier hespress_clean.csv...")
-        df_silver = pd.read_csv("opt/airflow/scripts/hespress_clean.csv")
+        df_silver = pd.read_csv("/opt/airflow/scripts/hespress_clean.csv")
         
         print(" Calcul des statistiques en cours...")
         
@@ -34,7 +34,7 @@ if __name__ == "__main__":
         
        
         print("\n ENVOI VERS LE DATA LAKE (BUCKET GOLD)...")
-        MINIO_ENDPOINT = 'http://localhost:9000' 
+        MINIO_ENDPOINT = 'http://minio:9000' 
         MINIO_ACCESS_KEY = 'admin_projet'
         MINIO_SECRET_KEY = 'password_secure123'
         BUCKET_GOLD = 'gold'
