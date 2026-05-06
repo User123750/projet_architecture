@@ -1,12 +1,27 @@
-version: '3.8'
+x-airflow-common: &airflow-common
+  image: apache/airflow:2.8.1
+  environment:
+    - AIRFLOW__CORE__EXECUTOR=LocalExecutor
+    - AIRFLOW__DATABASE__SQL_ALCHEMY_CONN=postgresql+psycopg2://airflow:airflow@postgres/airflow
+    - AIRFLOW__CORE__LOAD_EXAMPLES=False # Kan-7iydou les exemples zaydin
+    # Hna Airflow kay-installi les packages li khedamti bihom f Python:
+    - _PIP_ADDITIONAL_REQUIREMENTS=boto3 pandas beautifulsoup4 requests langdetect
+  volumes:
+    - ./dags:/opt/airflow/dags
+    - .:/opt/airflow/scripts # Kan-creyiw blassa bach Airflow ychouf les scripts dyalk
+  depends_on:
+    - postgres
 
 services:
+  # ------------------------------------
+  # 1. LE DATA LAKE (MINIO)
+  # ------------------------------------
   minio:
     image: minio/minio
     container_name: datalake_minio
     ports:
-      - "9000:9000"   # Port pour l'API (pour que le script Python y envoie les données)
-      - "9001:9001"   # Port pour l'interface web (pour visualiser tes fichiers)
+      - "9000:9000"
+      - "9001:9001"
     environment:
       MINIO_ROOT_USER: admin_projet
       MINIO_ROOT_PASSWORD: password_secure123
@@ -17,7 +32,60 @@ services:
       resources:
         limits:
           cpus: '1.0'
-          memory: 1G  # On limite la RAM pour garder le PC réactif
+          memory: 1G
+
+  # ------------------------------------
+  # 2. LA BASE DE DONNEES D'AIRFLOW
+  # ------------------------------------
+  postgres:
+    image: postgres:13
+    container_name: airflow_postgres
+    environment:
+      - POSTGRES_USER=airflow
+      - POSTGRES_PASSWORD=airflow
+      - POSTGRES_DB=airflow
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+
+  # ------------------------------------
+  # 3. INITIALISATION D'AIRFLOW
+  # ------------------------------------
+  airflow-init:
+    <<: *airflow-common
+    container_name: airflow_init
+    command: version
+    environment:
+      - AIRFLOW__CORE__EXECUTOR=LocalExecutor
+      - AIRFLOW__DATABASE__SQL_ALCHEMY_CONN=postgresql+psycopg2://airflow:airflow@postgres/airflow
+      - _AIRFLOW_DB_UPGRADE=true
+      - _AIRFLOW_WWW_USER_CREATE=true
+      - _AIRFLOW_WWW_USER_USERNAME=admin # Username dyal l'interface
+      - _AIRFLOW_WWW_USER_PASSWORD=admin # Password dyal l'interface
+    depends_on:
+      - postgres
+
+  # ------------------------------------
+  # 4. LE SERVEUR WEB (L'INTERFACE)
+  # ------------------------------------
+  airflow-webserver:
+    <<: *airflow-common
+    container_name: airflow_webserver
+    command: webserver
+    ports:
+      - "8080:8080"
+    depends_on:
+      - airflow-init
+
+  # ------------------------------------
+  # 5. LE MOTEUR (LE SCHEDULER)
+  # ------------------------------------
+  airflow-scheduler:
+    <<: *airflow-common
+    container_name: airflow_scheduler
+    command: scheduler
+    depends_on:
+      - airflow-init
 
 volumes:
   minio_data:
+  postgres_data:
