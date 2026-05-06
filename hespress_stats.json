@@ -1,0 +1,28 @@
+{
+    "total_articles": 20,
+    "repartition_categories": {
+        "Monde": 6,
+        "Politique": 5,
+        "Orbites": 3,
+        "Economie": 2,
+        "Sport": 1,
+        "Regions": 1,
+        "Culture": 1,
+        "Société": 1
+    },
+    "top_auteurs": {
+        "Hespress FR": 9,
+        "Zoubida Senoussi": 3,
+        "Mohammed CHAHBI": 2,
+        "Hicham Oukerzaz": 2,
+        "AFP": 1,
+        "Marwane El Bouzdaini": 1,
+        "Dr Saïd LAQABI": 1,
+        "Zineb Jazouli": 1
+    },
+    "repartition_langues": {
+        "fr": 19,
+        "inconnu": 1
+    },
+    "date_generation": "2026-05-06 13:31:09"
+}
