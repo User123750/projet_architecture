@@ -9,7 +9,7 @@ if __name__ == "__main__":
     
     try:
         print(" Lecture du fichier hespress_clean.csv...")
-        df_silver = pd.read_csv("hespress_clean.csv")
+        df_silver = pd.read_csv("opt/airflow/scripts/hespress_clean.csv")
         
         print(" Calcul des statistiques en cours...")
         

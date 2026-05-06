@@ -22,17 +22,17 @@ with DAG(
 
     tache_bronze = BashOperator(
         task_id='ingestion_bronze',
-        bash_command='python /opt/airflow/scripts/scraper.py'
+        bash_command='cd /opt/airflow/scripts && python scraper.py'
     )
 
     tache_silver = BashOperator(
         task_id='nettoyage_silver',
-        bash_command='python /opt/airflow/scripts/silver.py'
+        bash_command='cd /opt/airflow/scripts && python silver.py' 
     )
 
     tache_gold = BashOperator(
         task_id='analyse_gold',
-        bash_command='python /opt/airflow/scripts/gold.py' 
+        bash_command='cd /opt/airflow/scripts && python gold.py'
     )
 
     tache_bronze >> tache_silver >> tache_gold

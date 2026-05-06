@@ -4,7 +4,6 @@ import time
 import boto3
 from langdetect import detect
 
-
 def clean_text(texte):
     if type(texte) != str: return ""
     texte = re.sub(r'<[^>]+>', '', texte) 
@@ -16,27 +15,25 @@ def get_lang(texte):
     except: return "inconnu"
 
 print("1. Lecture du fichier brut...")
-df = pd.read_csv("hespress_brut.csv")
+df = pd.read_csv("/opt/airflow/scripts/hespress_brut.csv")
 
 print("2. Nettoyage et détection de langue...")
 df['Contenu_Clean'] = df['Contenu'].apply(clean_text)
 df['Titre_Clean'] = df['Titre article'].apply(clean_text)
 df['Langue'] = df['Contenu_Clean'].apply(get_lang)
 
-df_silver = df[['Titre_Clean', 'Auteur', 'Date publication', 'Catégorie', 'Contenu_Clean', 'Langue', 'Url']]
-
-df_silver.to_csv("hespress_clean.csv", index=False, encoding='utf-8-sig')
+df.to_csv("/opt/airflow/scripts/hespress_clean.csv", index=False)
 print(" Fichier propre sauvegardé : hespress_clean.csv")
 
-
+print("3. Envoi au Data Lake (MinIO)...")
 print("3. Envoi au Data Lake (MinIO)...")
 s3 = boto3.client('s3', 
-                  endpoint_url='http://localhost:9000',
+                  endpoint_url='http://minio:9000', 
                   aws_access_key_id='admin_projet', 
                   aws_secret_access_key='password_secure123')
 
 nom_fichier = f"hespress_clean_{int(time.time())}.csv"
 
-s3.upload_file("hespress_clean.csv", "silver", nom_fichier)
+s3.upload_file("/opt/airflow/scripts/hespress_clean.csv", "silver", nom_fichier)
 
 print(f" Fichier envoyé à MinIO sous le nom : {nom_fichier}")
