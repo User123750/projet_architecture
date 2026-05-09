@@ -1,22 +1,19 @@
+version: '3.8'
+
 x-airflow-common: &airflow-common
-  image: apache/airflow:2.8.1
+  build: . # Demande à Docker de construire l'image via le Dockerfile
   environment:
     - AIRFLOW__CORE__EXECUTOR=LocalExecutor
     - AIRFLOW__DATABASE__SQL_ALCHEMY_CONN=postgresql+psycopg2://airflow:airflow@postgres/airflow
-    - AIRFLOW__CORE__LOAD_EXAMPLES=False # Kan-7iydou les exemples zaydin
-    # Hna Airflow kay-installi les packages li khedamti bihom f Python:
-    - _PIP_ADDITIONAL_REQUIREMENTS=boto3 pandas beautifulsoup4 requests langdetect
+    - AIRFLOW__CORE__LOAD_EXAMPLES=False
   volumes:
     - ./dags:/opt/airflow/dags
-    - .:/opt/airflow/scripts # Kan-creyiw blassa bach Airflow ychouf les scripts dyalk
+    - .:/opt/airflow/scripts
   depends_on:
-   - _PIP_ADDITIONAL_REQUIREMENTS=boto3 pandas beautifulsoup4 requests langdetect sqlalchemy psycopg2-binary
     - postgres
 
 services:
-  # ------------------------------------
-  # 1. LE DATA LAKE (MINIO)
-  # ------------------------------------
+  # 1. DATA LAKE (MINIO)
   minio:
     image: minio/minio
     container_name: datalake_minio
@@ -29,15 +26,8 @@ services:
     command: server /data --console-address ":9001"
     volumes:
       - minio_data:/data
-    deploy:
-      resources:
-        limits:
-          cpus: '1.0'
-          memory: 1G
 
-  # ------------------------------------
-  # 2. LA BASE DE DONNEES D'AIRFLOW
-  # ------------------------------------
+  # 2. BASE DE DONNEES D'AIRFLOW
   postgres:
     image: postgres:13
     container_name: airflow_postgres
@@ -48,9 +38,7 @@ services:
     volumes:
       - postgres_data:/var/lib/postgresql/data
 
-  # ------------------------------------
-  # 3. INITIALISATION D'AIRFLOW
-  # ------------------------------------
+  # 3. INITIALISATION
   airflow-init:
     <<: *airflow-common
     container_name: airflow_init
@@ -60,14 +48,10 @@ services:
       - AIRFLOW__DATABASE__SQL_ALCHEMY_CONN=postgresql+psycopg2://airflow:airflow@postgres/airflow
       - _AIRFLOW_DB_UPGRADE=true
       - _AIRFLOW_WWW_USER_CREATE=true
-      - _AIRFLOW_WWW_USER_USERNAME=admin # Username dyal l'interface
-      - _AIRFLOW_WWW_USER_PASSWORD=admin # Password dyal l'interface
-    depends_on:
-      - postgres
+      - _AIRFLOW_WWW_USER_USERNAME=admin
+      - _AIRFLOW_WWW_USER_PASSWORD=admin
 
-  # ------------------------------------
-  # 4. LE SERVEUR WEB (L'INTERFACE)
-  # ------------------------------------
+  # 4. INTERFACE WEB
   airflow-webserver:
     <<: *airflow-common
     container_name: airflow_webserver
@@ -77,18 +61,15 @@ services:
     depends_on:
       - airflow-init
 
-  # ------------------------------------
-  # 5. LE MOTEUR (LE SCHEDULER)
-  # ------------------------------------
+  # 5. SCHEDULER
   airflow-scheduler:
     <<: *airflow-common
     container_name: airflow_scheduler
     command: scheduler
     depends_on:
       - airflow-init
-# ------------------------------------
-  # 6. LE DATA WAREHOUSE (POSTGRESQL)
-  # ------------------------------------
+
+  # 6. DATA WAREHOUSE
   data_warehouse:
     image: postgres:15
     container_name: data_warehouse_db
@@ -101,10 +82,7 @@ services:
     volumes:
       - dw_data:/var/lib/postgresql/data
 
-
-# ------------------------------------
-  # 7. OUTIL DE VISUALISATION (METABASE)
-  # ------------------------------------
+  # 7. METABASE
   metabase:
     image: metabase/metabase:latest
     container_name: metabase_dashboard
@@ -112,13 +90,9 @@ services:
       - "3000:3000"
     volumes:
       - metabase_data:/metabase.db
-    deploy:
-      resources:
-        limits:
-          memory: 2G
 
 volumes:
   minio_data:
   postgres_data:
   dw_data:
-  metabase_data: 
+  metabase_data:

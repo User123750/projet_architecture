@@ -15,7 +15,7 @@ with DAG(
     'pipeline_hespress_medallion',
     default_args=default_args,
     description='Pipeline de donnees: Bronze -> Silver -> Gold -> Data Warehouse',
-    schedule_interval='@hourly', # 🟢 MODIFICATION : Exécution toutes les heures
+    schedule_interval='@hourly', 
     catchup=False,
     tags=['projet_hespress'],
 ) as dag:
@@ -35,11 +35,9 @@ with DAG(
         bash_command='cd /opt/airflow/scripts && python gold.py'
     )
 
-    # 🟢 MODIFICATION : Ajout de la tâche pour le Data Warehouse
     tache_warehouse = BashOperator(
         task_id='chargement_data_warehouse',
         bash_command='cd /opt/airflow/scripts && python warehouse.py'
     )
 
-    # 🟢 MODIFICATION : Mise à jour de la chaîne d'exécution (le workflow)
     tache_bronze >> tache_silver >> tache_gold >> tache_warehouse
